@@ -9,13 +9,16 @@ const { zones } = require('../lib/zones.json');
 const USAGE = 'usage: short-preflight <video> [--json]\nExit: 0 clean or warnings, 1 a fail, 2 could not check.\n';
 
 function probe(file) {
-  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:format=duration', '-of', 'json', file], { encoding: 'utf8' });
+  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:stream_side_data=rotation:format=duration', '-of', 'json', file], { encoding: 'utf8' });
   if (r.error && r.error.code === 'ENOENT') die('ffprobe not found: install ffmpeg');
   if (r.error) die(r.error.message);
   if (r.status !== 0) die(`${file}: not a video ffprobe can read`);
   const d = JSON.parse(r.stdout);
   if (!d.streams || !d.streams[0]) die(`${file}: no video track`);
-  return { width: d.streams[0].width, height: d.streams[0].height, duration: Number(d.format.duration) };
+  const s = d.streams[0];
+  // A phone video is often stored sideways with a rotation mark: use the shape a viewer sees.
+  const turned = (s.side_data_list || []).some((x) => Math.abs(x.rotation) === 90);
+  return { width: turned ? s.height : s.width, height: turned ? s.width : s.height, duration: Number(d.format.duration) };
 }
 
 function die(msg) {
@@ -43,11 +46,18 @@ function main(argv) {
   if (!fs.existsSync(file)) die(`${file}: no such file`);
   const info = probe(file);
   const findings = [];
-  if (info.width >= info.height) findings.push({ level: 'fail', id: 'not-vertical', text: `${info.width}x${info.height} is not vertical` });
+  if (info.width > info.height) findings.push({ level: 'fail', id: 'not-vertical', text: `${info.width}x${info.height} is not vertical` });
+  else if (Math.abs(info.width / info.height - 9 / 16) > 0.01) findings.push({ level: 'warn', id: 'not-nine-sixteen', text: `${info.width}x${info.height} is not 9:16, so zone positions are approximate` });
   findings.push(...checkSound(file));
   const checkPicture = loadPicture();
   const notChecked = [];
-  if (checkPicture && info.width < info.height) findings.push(...checkPicture(file, zones, info));
+  if (checkPicture && info.width <= info.height) {
+    try {
+      findings.push(...checkPicture(file, zones, info));
+    } catch (e) {
+      die(`${file}: could not read the whole picture: ${e.message.split('\n')[0]}`);
+    }
+  }
   else notChecked.push('picture');
   const failed = findings.some((f) => f.level === 'fail');
   if (json) {

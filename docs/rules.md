@@ -2,6 +2,29 @@
 
 Every finding has an id. Each section says why it matters and how to fix it.
 
+The zone findings look for sharp detail, such as text or a logo, inside a zone. They do not read anything. A zone found only on frames filled edge to edge is a warning instead, because scenery and text look alike here, and the line says so. Look at those yourself.
+
+## zone-right-buttons
+Fail. Something sits where the like, comment and share buttons draw over the video. Move it left of 82% of the width, or above 53% of the height.
+
+## zone-bottom-band-channel-and-title
+Fail. Something sits where the channel name and title draw over the video, the lowest 15%.
+
+## zone-status-bar
+Fail. Something sits under the phone's clock and battery, the top 4.5%.
+
+## zone-top-right-icons
+Warning. Something sits under the cast, search and menu icons. They may fade, so it may still be read, but do not count on it.
+
+## zone-back-arrow
+Warning. Something sits under the back arrow at the top left.
+
+## empty-first-frame
+Fail. The first frame holds almost nothing. That frame is what a viewer sees before deciding to stay, so put the subject on it.
+
+## not-nine-sixteen
+Warning. The file is taller than wide, or square, but not 9:16. The zones were measured at 9:16, so positions are approximate.
+
 ## not-vertical
 Fail. The file is wider than it is tall, so YouTube will not treat it as a Short. Render at 1080x1920.
 

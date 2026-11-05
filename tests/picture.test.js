@@ -3,11 +3,12 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { execFileSync, spawn } = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { checkPicture } = require('../lib/picture.js');
 const { zones } = require('../lib/zones.json');
 
-const dir = fs.mkdtempSync(path.join(__dirname, 'picture-'));
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'spf-picture-'));
 test.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 const center = 'drawtext=text=Read this:fontsize=24:fontcolor=white:x=90:y=260';
 function clip(name, filters = center, { source = 'color=c=0x16192d:s=360x640:r=10:d=4', duration = 4 } = {}) {
@@ -110,6 +111,17 @@ test('text over a continuing textured background still counts', () => {
     source: "nullsrc=s=360x640:r=10:d=4,geq=lum='60+10*sin(X*0.25)+10*sin(Y*0.25)':cb=128:cr=128"
   });
   assert.ok(check(file).some((f) => f.text.startsWith('status bar:')));
+});
+
+test('a picture filling the frame warns, since scenery and text look alike here', () => {
+  // Dots everywhere, packed tighter in the button column, so the texture rule does not excuse it.
+  const file = clip('full-bleed.mp4', 'null', {
+    source: "nullsrc=s=360x640:r=10:d=2,geq=lum='if(gt(X,300),40+150*gt(mod(X,6),3)*gt(mod(Y,6),3),40+150*gt(mod(X,16),13)*gt(mod(Y,16),13))':cb=128:cr=128", duration: 2
+  });
+  const findings = check(file);
+  assert.ok(right(findings).length === 1, JSON.stringify(findings));
+  assert.ok(findings.every((f) => f.level === 'warn'), JSON.stringify(findings));
+  assert.match(right(findings)[0].text, /fills the frame/);
 });
 
 test('the real failing render fails status bar and right buttons', () => {

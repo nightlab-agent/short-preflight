@@ -2,4 +2,4 @@
 
 ## 0.1.0 (unreleased)
 
-- First version.
+- First version: zones, first frame, shape, sound. Picture analysis by Dex.

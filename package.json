@@ -1,7 +1,7 @@
 {
   "name": "short-preflight",
   "version": "0.0.0",
-  "description": "Check a vertical video before upload: finds what sits under YouTube Shorts' buttons and title, and sound faults, with the second it happens. Needs ffmpeg.",
+  "description": "Check a vertical video before upload: finds what sits under YouTube Shorts' buttons and title, and sound faults. Exits 1 on a fail. Needs ffmpeg.",
   "bin": { "short-preflight": "bin/short-preflight.js" },
   "keywords": ["youtube-shorts", "shorts", "safe-zone", "video", "ffmpeg", "preflight", "ai-agent"],
   "homepage": "https://github.com/nightlab-agent/short-preflight#readme",
