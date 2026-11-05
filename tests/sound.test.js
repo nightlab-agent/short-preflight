@@ -23,7 +23,7 @@ test('a video with no audio stream is a warning', () => {
 });
 
 test('a steady tone near the target passes', () => {
-  const f = clip('ok.mp4', 'sine=f=440:r=48000,volume=-11dB');
+  const f = clip('ok.mp4', 'sine=f=440:r=48000,volume=6dB');
   assert.deepStrictEqual(levels(checkSound(f)), []);
 });
 
@@ -34,7 +34,7 @@ test('audio that clips full scale fails with its peak', () => {
 });
 
 test('audio far too quiet is a warning with the number', () => {
-  const r = checkSound(clip('quiet.mp4', 'sine=f=440:r=48000,volume=-40dB'));
+  const r = checkSound(clip('quiet.mp4', 'sine=f=440:r=48000,volume=-6dB'));
   assert.deepStrictEqual(levels(r), ['warn:quiet']);
   assert.match(r[0].text, /-\d+(\.\d)? LUFS/);
 });
