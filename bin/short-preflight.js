@@ -48,7 +48,11 @@ function main(argv) {
   const findings = [];
   if (info.width > info.height) findings.push({ level: 'fail', id: 'not-vertical', text: `${info.width}x${info.height} is not vertical` });
   else if (Math.abs(info.width / info.height - 9 / 16) > 0.01) findings.push({ level: 'warn', id: 'not-nine-sixteen', text: `${info.width}x${info.height} is not 9:16, so zone positions are approximate` });
-  findings.push(...checkSound(file));
+  try {
+    findings.push(...checkSound(file));
+  } catch (e) {
+    die(e.code === 'ENOENT' ? 'ffmpeg not found: install ffmpeg' : e.message);
+  }
   const checkPicture = loadPicture();
   const notChecked = [];
   if (checkPicture && info.width <= info.height) {

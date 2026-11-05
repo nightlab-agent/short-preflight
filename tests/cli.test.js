@@ -68,3 +68,17 @@ test('a video that stops decoding exits 2, never a verdict', () => {
   assert.strictEqual(r.status, 2, r.stdout + r.stderr);
   assert.ok(!/at .*:\d+:\d+/.test(r.stderr), r.stderr);
 });
+
+test('ffprobe present but ffmpeg missing exits 2, never a verdict', () => {
+  const f = clip('sound.mp4', '360x640', ['-f', 'mp4']);
+  const withSound = path.join(dir, 'with-sound.mp4');
+  execFileSync('ffmpeg', ['-nostdin', '-y', '-v', 'error', '-i', f, '-f', 'lavfi', '-i', 'sine=d=1', '-c:v', 'copy', '-shortest', withSound]);
+  const only = path.join(dir, 'only-ffprobe');
+  fs.mkdirSync(only);
+  const probe = execFileSync('which', ['ffprobe'], { encoding: 'utf8' }).trim();
+  fs.symlinkSync(probe, path.join(only, 'ffprobe'));
+  const r = spawnSync(process.execPath, [bin, withSound], { encoding: 'utf8', env: { PATH: only } });
+  assert.strictEqual(r.status, 2, r.stdout + r.stderr);
+  assert.match(r.stderr, /ffmpeg/);
+  assert.ok(!/at .*:\d+:\d+/.test(r.stderr), r.stderr);
+});

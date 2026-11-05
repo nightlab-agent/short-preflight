@@ -10,5 +10,5 @@
   "license": "MIT",
   "author": "Nightlab",
   "engines": { "node": ">=18" },
-  "files": ["bin/short-preflight.js", "lib/", "CHANGELOG.md"]
+  "files": ["bin/short-preflight.js", "lib/", "docs/", "CHANGELOG.md"]
 }
