@@ -10,10 +10,10 @@ Needs ffmpeg and ffprobe on your PATH, and Node 18 or newer.
 
 ```
 $ npx short-preflight old-render.mp4
-FAIL right buttons: detail in ~17.6 s of sampled video; first at 0.0 s (0.5 s sampling)
-FAIL status bar: detail in ~17.6 s of sampled video; first at 0.0 s (0.5 s sampling)
-WARN top right icons: detail in ~17.6 s of sampled video; first at 0.0 s (0.5 s sampling)
-WARN back arrow: detail in ~17.6 s of sampled video; first at 0.0 s (0.5 s sampling)
+FAIL right buttons: ~17.6 s, first at 0.0 s
+FAIL status bar: ~17.6 s, first at 0.0 s
+WARN top right icons: ~17.6 s, first at 0.0 s
+WARN back arrow: ~17.6 s, first at 0.0 s
 FAIL
 ```
 
@@ -23,7 +23,7 @@ That is a real render of ours, before we fixed the template: a label under the p
 
 Every finding has an id, explained in [docs/rules.md](docs/rules.md).
 
-- Zones: sharp detail, such as text or a logo, under the right buttons, the channel and title band, the status bar, the top icons or the back arrow, with how long and from which second. Sampled every 0.5 s, so a flash shorter than that can be missed.
+- Zones: sharp detail, such as text or a logo, under the right buttons, the channel and title band, the status bar, the top icons or the back arrow, with how long and from which second. Frames are sampled every 0.5 s, or more thinly past about 3 minutes, so a flash shorter than that can be missed.
 - First frame: nearly empty fails.
 - Shape: wider than tall fails; anything else that is not 9:16 warns. A phone video stored sideways with a rotation mark counts as what a viewer sees.
 - Sound: silent track, clipping, near clipping, too quiet, no audio.
