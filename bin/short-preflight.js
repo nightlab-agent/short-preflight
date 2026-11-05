@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const { checkSound } = require('../lib/sound.js');
+const { zones } = require('../lib/zones.json');
+
+const USAGE = 'usage: short-preflight <video> [--json]\nExit: 0 clean or warnings, 1 a fail, 2 could not check.\n';
+
+function probe(file) {
+  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:format=duration', '-of', 'json', file], { encoding: 'utf8' });
+  if (r.error && r.error.code === 'ENOENT') die('ffprobe not found: install ffmpeg');
+  if (r.error) die(r.error.message);
+  if (r.status !== 0) die(`${file}: not a video ffprobe can read`);
+  const d = JSON.parse(r.stdout);
+  if (!d.streams || !d.streams[0]) die(`${file}: no video track`);
+  return { width: d.streams[0].width, height: d.streams[0].height, duration: Number(d.format.duration) };
+}
+
+function die(msg) {
+  process.stderr.write(`short-preflight: ${msg}\n`);
+  process.exit(2);
+}
+
+function loadPicture() {
+  try {
+    return require('../lib/picture.js').checkPicture;
+  } catch (e) {
+    if (e.code === 'MODULE_NOT_FOUND') return null;
+    throw e;
+  }
+}
+
+function main(argv) {
+  const json = argv.includes('--json');
+  const files = argv.filter((a) => a !== '--json');
+  if (files.length !== 1 || files[0].startsWith('-')) {
+    process.stderr.write(USAGE);
+    process.exit(2);
+  }
+  const file = files[0];
+  if (!fs.existsSync(file)) die(`${file}: no such file`);
+  const info = probe(file);
+  const findings = [];
+  if (info.width >= info.height) findings.push({ level: 'fail', id: 'not-vertical', text: `${info.width}x${info.height} is not vertical` });
+  findings.push(...checkSound(file));
+  const checkPicture = loadPicture();
+  const notChecked = [];
+  if (checkPicture && info.width < info.height) findings.push(...checkPicture(file, zones, info));
+  else notChecked.push('picture');
+  const failed = findings.some((f) => f.level === 'fail');
+  if (json) {
+    process.stdout.write(JSON.stringify({ file: path.basename(file), ...info, ok: !failed, notChecked, findings }, null, 2) + '\n');
+  } else {
+    for (const f of findings) process.stdout.write(`${f.level.toUpperCase()} ${f.text}\n`);
+    for (const n of notChecked) process.stdout.write(`NOT CHECKED ${n}\n`);
+    process.stdout.write(failed ? 'FAIL\n' : 'PASS\n');
+  }
+  process.exit(failed ? 1 : 0);
+}
+
+main(process.argv.slice(2));

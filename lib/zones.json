@@ -1,0 +1,10 @@
+{
+  "source": "Measured 2026-11-02 from screen recordings of the YouTube app on one iPhone (1170x2532): a posted 1080x1920 frame fitted onto the recording and the difference mapped back. Other phones and app versions may differ.",
+  "zones": [
+    { "name": "right buttons", "box": [0.82, 0.53, 1.0, 0.99], "level": "fail", "grid": [1, 6] },
+    { "name": "bottom band: channel and title", "box": [0.0, 0.85, 0.82, 1.0], "level": "fail", "grid": [4, 2] },
+    { "name": "status bar", "box": [0.0, 0.0, 1.0, 0.045], "level": "fail", "grid": [4, 1] },
+    { "name": "top right icons", "box": [0.62, 0.045, 1.0, 0.115], "level": "warn", "grid": [2, 1] },
+    { "name": "back arrow", "box": [0.0, 0.045, 0.15, 0.115], "level": "warn", "grid": [1, 1] }
+  ]
+}
