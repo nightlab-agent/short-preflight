@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { checkPicture } = require('../lib/picture.js');
+const { realClip } = require('./real-clip.js');
 const { zones } = require('../lib/zones.json');
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'spf-picture-'));
@@ -125,7 +126,7 @@ test('a picture filling the frame warns, since scenery and text look alike here'
 });
 
 test('the real failing render fails status bar and right buttons', () => {
-  const findings = check(path.join(__dirname, 'fixtures', 'real-fails-zones.mp4'));
+  const findings = check(realClip('real-fails-zones', dir));
   for (const name of ['status bar', 'right buttons']) {
     assert.strictEqual(findings.filter((f) => f.level === 'fail' && f.text.startsWith(`${name}:`)).length, 1, JSON.stringify(findings));
   }
@@ -133,7 +134,7 @@ test('the real failing render fails status bar and right buttons', () => {
 });
 
 test('the real passing render has no picture finding, including whole-video warnings', () => {
-  assert.deepStrictEqual(check(path.join(__dirname, 'fixtures', 'real-passes.mp4')), []);
+  assert.deepStrictEqual(check(realClip('real-passes', dir)), []);
 });
 
 test('other resolutions and 4K use the same fractional coordinates', () => {
@@ -194,7 +195,7 @@ test('repeated calls and two simultaneous processes give identical results witho
 
 test('a 60 second 1080p Short is checked in less than 20 seconds', () => {
   const file = path.join(dir, 'minute.mp4');
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-stream_loop', '-1', '-i', path.join(__dirname, 'fixtures', 'real-passes.mp4'),
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-stream_loop', '-1', '-i', realClip('real-passes', dir),
     '-t', '60', '-an', '-c:v', 'copy', file]);
   const started = performance.now();
   const findings = check(file);

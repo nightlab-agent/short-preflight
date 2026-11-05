@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+const { realClip } = require('./real-clip.js');
 const bin = path.join(__dirname, '..', 'bin', 'short-preflight.js');
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'spf-review-'));
 test.after(() => fs.rmSync(dir, { recursive: true, force: true }));
@@ -51,7 +52,7 @@ test('truncation: a cut mkv of the same render is not a PASS', () => {
   assert.strictEqual(r.status, 2, r.stdout + r.stderr);
 });
 test('damage: a real render with its second half zeroed is not a PASS', () => {
-  ff('-i', path.join(__dirname, 'fixtures', 'real-passes.mp4'), '-c', 'copy', '-movflags', '+faststart', 'z.mp4');
+  ff('-i', realClip('real-passes', dir), '-c', 'copy', '-movflags', '+faststart', 'z.mp4');
   const b = fs.readFileSync(p('z.mp4'));
   b.fill(0, Math.floor(b.length / 2));
   fs.writeFileSync(p('z.mp4'), b);
