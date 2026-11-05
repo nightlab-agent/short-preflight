@@ -29,7 +29,7 @@ Warning. The file is taller than wide, or square, but not 9:16. The zones were m
 Fail. The file is wider than it is tall. The zones assume a vertical frame, so the picture was not checked. Render at 1080x1920.
 
 ## silent-track
-Fail. There is an audio track but nothing on it, so a viewer hears nothing. This is what a voice step that failed quietly looks like. Check that the voice was mixed in before the final render.
+Fail. The track never rises above -60 dBTP: it is silent or nearly silent. This is what a voice step that failed quietly looks like. Check that the voice was mixed in before the final render.
 
 ## clipping
 Fail. The audio reaches full scale, so loud moments can distort. Lower the mix and limit it to about -1.5 dBTP.
@@ -44,4 +44,4 @@ Warning. Loudness is below -20 LUFS, so it may sound quiet on a phone. Raise the
 Warning. The file has no audio track. Fine if you meant that; otherwise check the step that adds the voice.
 
 ## sound-unread
-Warning. ffmpeg could not measure the audio, so sound was not checked.
+Warning. Some or all of the audio measurements were unavailable. A very short audible track may have no integrated loudness reading even when its peak can be measured. Decoder errors exit 2 instead of giving a verdict.

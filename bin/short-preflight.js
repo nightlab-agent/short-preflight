@@ -9,16 +9,20 @@ const { zones } = require('../lib/zones.json');
 const USAGE = 'usage: short-preflight <video> [--json]\nExit: 0 clean or warnings, 1 a fail, 2 could not check.\n';
 
 function probe(file) {
-  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:stream_side_data=rotation:format=duration', '-of', 'json', file], { encoding: 'utf8' });
+  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,sample_aspect_ratio:stream_disposition=attached_pic:stream_side_data=rotation:format=duration', '-of', 'json', file], { encoding: 'utf8' });
   if (r.error && r.error.code === 'ENOENT') die('ffprobe not found: install ffmpeg');
   if (r.error) die(r.error.message);
   if (r.status !== 0) die(`${file}: not a video ffprobe can read`);
   const d = JSON.parse(r.stdout);
   if (!d.streams || !d.streams[0]) die(`${file}: no video track`);
   const s = d.streams[0];
-  // A phone video is often stored sideways with a rotation mark: use the shape a viewer sees.
+  // Cover art on an audio file shows up as a video stream of one still.
+  if (s.disposition && s.disposition.attached_pic) die(`${file}: no video track, only cover art`);
+  // Account for non-square pixels before applying a phone video's rotation mark.
+  const [sarWidth, sarHeight] = (s.sample_aspect_ratio || '1:1').split(':').map(Number);
+  const width = s.width * (sarWidth > 0 && sarHeight > 0 ? sarWidth / sarHeight : 1);
   const turned = (s.side_data_list || []).some((x) => Math.abs(x.rotation) === 90);
-  return { width: turned ? s.height : s.width, height: turned ? s.width : s.height, duration: Number(d.format.duration) };
+  return { width: turned ? s.height : width, height: turned ? width : s.height, duration: Number(d.format.duration) };
 }
 
 function die(msg) {
@@ -42,7 +46,8 @@ function main(argv) {
     process.stderr.write(USAGE);
     process.exit(2);
   }
-  const file = files[0];
+  // An absolute path keeps a literal filename such as file:clip.mp4 out of ffmpeg's protocol parser.
+  const file = path.resolve(files[0]);
   if (!fs.existsSync(file)) die(`${file}: no such file`);
   const info = probe(file);
   const findings = [];
@@ -51,7 +56,8 @@ function main(argv) {
   try {
     findings.push(...checkSound(file));
   } catch (e) {
-    die(e.code === 'ENOENT' ? 'ffmpeg not found: install ffmpeg' : e.message);
+    if (e.code === 'ENOENT') die('ffmpeg not found: install ffmpeg');
+    die(`${file}: could not read the whole sound: ${e.message.split('\n')[0]}`);
   }
   const checkPicture = loadPicture();
   const notChecked = [];

@@ -6,7 +6,7 @@ Your agent or script renders Shorts faster than you can watch them. This checks 
 npx short-preflight video.mp4
 ```
 
-Needs ffmpeg and ffprobe on your PATH (tested with 6.1), and Node 18 or newer.
+Needs ffmpeg and ffprobe on your PATH (tested with 6.1; the older-ffmpeg path is tested with a stand-in, not a real 4.x), and Node 18 or newer.
 
 ```
 $ npx short-preflight old-render.mp4
