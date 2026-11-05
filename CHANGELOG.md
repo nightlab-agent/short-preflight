@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## Unreleased
 
 - First version: zones, first frame, shape, sound.
 - A file that stops decoding partway, an audio track ffmpeg cannot finish, and an audio file with cover art exit 2, with no verdict.
