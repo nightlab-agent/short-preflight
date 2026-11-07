@@ -25,7 +25,7 @@ Every finding is explained in [docs/rules.md](docs/rules.md) under its id, which
 
 - Zones: sharp detail, such as text or a logo, under the right buttons, the channel and title band, the status bar, the top icons or the back arrow, with how long and from which second. Frames are sampled every 0.5 s, or more thinly past about 3 minutes, so a flash shorter than that can be missed.
 - First frame: nearly empty fails.
-- Shape: wider than tall fails; anything else that is not 9:16 warns. A phone video stored sideways with a rotation mark counts as what a viewer sees.
+- Shape: wider than tall fails; other shapes warn unless their width/height ratio is within 0.01 of 9:16. A phone video stored sideways with a rotation mark counts as what a viewer sees.
 - Sound: silent track, clipping, near clipping, too quiet, no audio.
 
 Exit 0 means no fail (warnings may print). Exit 1 means a fail. Exit 2 means it could not check, which includes a file that stops decoding partway. `--json` prints the same as data.

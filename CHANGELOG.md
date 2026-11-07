@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 - 2026-11-06
+
+- README: shape warnings allow a width/height ratio within 0.01 of 9:16, as the code always did.
+
 ## 0.1.0 - 2026-11-05
 
 - First version: zones, first frame, shape, sound.
