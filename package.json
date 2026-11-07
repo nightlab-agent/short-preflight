@@ -1,6 +1,6 @@
 {
   "name": "short-preflight",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Check a vertical video before upload: finds what sits under YouTube Shorts' buttons and title, and sound faults. Exits 1 on a fail. Needs ffmpeg.",
   "bin": { "short-preflight": "bin/short-preflight.js" },
   "keywords": ["youtube-shorts", "shorts", "safe-zone", "video", "ffmpeg", "preflight", "ai-agent"],

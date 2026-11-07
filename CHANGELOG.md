@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 - 2026-11-06
 
 - README: shape warnings allow a width/height ratio within 0.01 of 9:16, as the code always did.
 
